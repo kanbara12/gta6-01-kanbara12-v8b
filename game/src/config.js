@@ -40,16 +40,11 @@ export const STAGES = {
     mode: 'wide', camNote: 'wide high establishing',
   },
   play: {
-    job: 2, cash: 3750, rep: 1, jobsDone: 1, wanted: 2, elapsed: 72, par: 90,
+    job: 2, cash: 3750, rep: 1, jobsDone: 1, wanted: 0, elapsed: 72, par: 90,
     speed: 141, fuel: 84, cond: 96, district: 'BEACHFRONT • Beachfront Rd',
     tod: 'GOLDEN', dialogue: { who: 'Rae — Fixer', init: 'R', text: 'Marker’s hot, Heatline. Grab the cargo and don’t stop for anyone.' },
     targets: null, drift: null, onFoot: false, mode: 'chase34',
-    police: [
-      { call: 'SNOOK-12', d: 6, status: 'RAMMING' },
-      { call: 'SNOOK-11', d: 14, status: 'PURSUIT' },
-      { call: 'SNOOK-13', d: 38, status: 'RESPONDING' },
-      { call: 'SNOOK-14', d: 55, status: 'RESPONDING' },
-    ],
+    police: [],
   },
   chase: {
     job: 5, cash: 13200, rep: 5, jobsDone: 4, wanted: 3, elapsed: 129, par: 150,

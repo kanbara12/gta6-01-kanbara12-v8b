@@ -280,14 +280,14 @@ export function buildWorld(scene) {
   yard.position.set(0, 0, 0); scene.add(yard);
   out.yardCenter = new THREE.Vector3(136, 0, 147);
 
-  // Mission marker: small glowing disc + modest vertical beam.
+  // Mission marker: small glowing disc + short modest beam (not a pillar).
   const marker = new THREE.Group();
   const discM = new THREE.Mesh(new THREE.CircleGeometry(2.2, 24),
     new THREE.MeshBasicMaterial({ color: 0xffd94d, transparent: true, opacity: 0.85 }));
   discM.rotation.x = -Math.PI / 2; discM.position.y = 0.25; marker.add(discM);
-  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 9, 12, 1, true),
-    new THREE.MeshBasicMaterial({ color: 0xffd94d, transparent: true, opacity: 0.3, side: THREE.DoubleSide, depthWrite: false }));
-  beam.position.y = 4.5; marker.add(beam);
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 2.5, 12, 1, true),
+    new THREE.MeshBasicMaterial({ color: 0xffd94d, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false }));
+  beam.position.y = 1.25; marker.add(beam);
   scene.add(marker);
   out.marker = marker;
 

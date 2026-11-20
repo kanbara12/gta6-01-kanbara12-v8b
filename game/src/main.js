@@ -403,8 +403,12 @@ function animate() {
       camera.position.set(cp.x - f.x * 6.5 + r.x * 2.2, 2.7, cp.z - f.z * 6.5 + r.z * 2.2);
       camera.lookAt(cp.x + f.x * 5, 1.0, cp.z + f.z * 5);
     } else if (G.mode === 'foot') {
-      camera.position.set(player.position.x, 3.0, player.position.z + 6.5);
-      camera.lookAt(136, 1.0, 141);
+      // Camera behind the player along their facing, looking past them at
+      // the fight: follows the staged facing (west for the mission shot),
+      // not a fixed compass point.
+      const f = { x: Math.sin(player.rotation.y), z: Math.cos(player.rotation.y) };
+      camera.position.set(player.position.x - f.x * 6.5, 3.4, player.position.z - f.z * 6.5);
+      camera.lookAt(player.position.x + f.x * 5, 1.8, player.position.z + f.z * 5);
     }
     // Staged frames keep the staged timer: elapsed frozen at the table value.
     state.elapsed = G.staged.elapsed;
@@ -457,6 +461,7 @@ function animate() {
   const v = new THREE.Vector3();
   for (const e of enemies) {
     if (!e.group.visible) { e.bar.style.display = 'none'; continue; }
+    if (e.down) { e.bar.style.display = 'none'; continue; } // downed: body only, no bar
     v.set(e.group.position.x, 2.3, e.group.position.z).project(camera);
     if (v.z > 1) { e.bar.style.display = 'none'; continue; }
     e.bar.style.display = 'block';

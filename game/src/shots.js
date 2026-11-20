@@ -73,7 +73,9 @@ export function applyShot(G, name) {
     });
     // SKY-1 large in the upper sky with cone + pool, never clipped:
     // y=18 keeps the rotor inside the chase camera's top edge.
-    const heliDist = 42, heliLat = 6;
+    // Play shot: heli dead ahead over the road centre so the pool lands
+    // visibly on the road; chase keeps the offset orbit (QA-passed).
+    const heliDist = 42, heliLat = name === 'play' ? 0 : 6;
     const hFwd = Math.sqrt(Math.max(1, heliDist * heliDist - heliLat * heliLat));
     G.heli.position.set(cp.x + f.x * hFwd - r.x * heliLat, 18, cp.z + f.z * hFwd - r.z * heliLat);
     G.heli.visible = true;
@@ -86,24 +88,24 @@ export function applyShot(G, name) {
     G.traffic[2].rotation.y = G.car.rotation.y; G.traffic[2].visible = true;
     if (s.drift) showPopup(s.drift, true);
   } else if (name === 'mission') {
-    // On foot in the container yard, facing the three enemies.
-    // Player + camera BOTH inside the open band z 140..146 (between the
-    // z=138 and z=148 container rows), on the x=136 lane that is clear in
-    // the z=148 row. Earlier spots put the camera south of a container row
-    // and the yard read as two walls with floating health bars.
-    G.player.position.set(136, 0, 144.5); G.player.rotation.y = Math.PI; // face north into the yard
+    // On foot in the container yard, facing WEST into the sunset: player
+    // east of the fight lane, camera behind the player (east) looking west,
+    // so the sunset sky + glow over the city read behind the enemies.
+    // 1 LIVE enemy (health bar) + 2 DOWNED (no bar, bodies on the ground)
+    // so TARGETS 2/3 matches the frame: 2 eliminated, 1 standing.
+    G.player.position.set(140, 0, 144.5); G.player.rotation.y = -Math.PI / 2; // face west
     G.player.visible = true; G.car.visible = false;
-    G.forward = { x: 0, z: -1 }; G.right = { x: 1, z: 0 };
-    G.camera.position.set(136, 3.0, 151);
-    G.camera.lookAt(136, 1.0, 141);
-    const spots = [[131, 142, 100, false], [133.5, 141, 0, true], [141, 142, 55, false]];
+    G.forward = { x: -1, z: 0 }; G.right = { x: 0, z: 1 };
+    G.camera.position.set(146.5, 3.0, 144.5);
+    G.camera.lookAt(135, 1.0, 144.5);
+    const spots = [[130.5, 140.5, 0, true], [132, 143, 100, false], [131, 145.0, 0, true]];
     G.enemies.forEach((e, i) => {
       const [x, z, hp, down] = spots[i];
       e.group.position.set(x, 0, z);
       e.group.visible = true;
       e.hp = hp; e.down = down;
       e.group.rotation.z = down ? Math.PI / 2 : 0;
-      e.group.rotation.y = Math.PI;
+      e.group.rotation.y = Math.PI / 2; // face east, toward the player
     });
     // Pistol in hand + frozen muzzle flash starburst at the barrel tip.
     G.flash.visible = true; G.flashFrozen = true;
