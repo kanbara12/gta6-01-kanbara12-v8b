@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SUNCOAST: HEATLINE — open-world crime game</title>
+<link rel="icon" href="./favicon.ico">
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#1a0e1e;
+    font-family:Arial,Helvetica,sans-serif;color:#fff;}
+  #app{position:fixed;inset:0;}
+  canvas.game{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  .card{background:rgba(10,10,18,.72);border:1px solid rgba(255,255,255,.28);border-radius:8px;
+    padding:8px 10px;box-shadow:0 2px 10px rgba(0,0,0,.45);}
+  #hud{position:absolute;inset:0;pointer-events:none;font-size:13px;}
+  #mission-panel{position:absolute;top:12px;left:12px;width:340px;}
+  #mission-panel h2{margin:0 0 3px;font-size:15px;color:#ffb02e;letter-spacing:.4px;}
+  #mission-panel .obj{margin:0 0 2px;color:#fff;}
+  #mission-panel .sub{color:#cfd6e4;font-size:12px;}
+  #mission-panel .timer{color:#8ef0ff;font-weight:bold;margin-top:3px;}
+  #money-panel{position:absolute;top:12px;right:12px;width:230px;text-align:right;}
+  #cash{font-size:26px;font-weight:bold;color:#4be36b;}
+  #money-panel .row{color:#e8ecf4;font-size:12px;margin-top:2px;}
+  #stars{color:#ffc93e;font-size:16px;letter-spacing:2px;}
+  #repbar-wrap{height:7px;background:#333;border-radius:4px;margin-top:4px;overflow:hidden;}
+  #repbar{height:100%;width:0%;background:linear-gradient(90deg,#ffb02e,#ff5e3a);}
+  #police-panel{position:absolute;top:118px;right:12px;width:250px;}
+  #police-panel h3{margin:0 0 5px;font-size:12px;color:#ff6b5e;letter-spacing:1px;}
+  #police-rows .prow{display:flex;justify-content:space-between;padding:2px 0;color:#ffe9e6;font-size:12px;}
+  #police-rows .prow b{color:#fff;}
+  #bl-panel{position:absolute;left:12px;bottom:12px;width:330px;}
+  #bl-panel .radio{color:#8ef0ff;font-weight:bold;}
+  #bl-panel .weapons{margin-top:5px;color:#dfe6f2;}
+  #bl-panel .weapons b{color:#ffb02e;}
+  #bl-panel .crew{margin-top:5px;color:#cfd6e4;font-size:12px;line-height:1.5;}
+  #bl-panel .crew b{color:#fff;}
+  #speedo{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;width:220px;text-align:center;}
+  #speed{font-size:34px;font-weight:bold;color:#fff;line-height:1;}
+  #speedo .unit{font-size:12px;color:#cfd6e4;}
+  .bar{height:6px;background:#333;border-radius:3px;margin-top:4px;overflow:hidden;}
+  .bar>i{display:block;height:100%;background:#4be36b;}
+  #mm-wrap{position:absolute;right:12px;bottom:12px;width:190px;text-align:center;}
+  #minimap{border-radius:50%;border:2px solid rgba(255,255,255,.5);background:#0a2036;}
+  #mm-label{margin-top:4px;color:#e8ecf4;font-size:12px;}
+  #mm-time{color:#ffb02e;font-size:12px;}
+  #dialogue{position:absolute;left:50%;transform:translateX(-50%);bottom:118px;width:520px;
+    display:flex;gap:10px;align-items:center;}
+  #dlg-portrait{width:44px;height:44px;border-radius:50%;background:#ff5e3a;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:bold;flex:none;}
+  #dialogue .who{font-weight:bold;color:#ffb02e;}
+  #dialogue .say{color:#fff;}
+  #popups{position:absolute;left:50%;top:58%;transform:translateX(-50%);text-align:center;}
+  #popups .pop{font-size:22px;font-weight:bold;color:#ffd94d;text-shadow:0 2px 6px #000;margin:2px 0;}
+  #crosshair{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:26px;
+    color:#fff;text-shadow:0 0 4px #000;display:none;}
+  .enemybar{position:absolute;width:64px;height:8px;background:rgba(0,0,0,.6);border:1px solid #fff;
+    border-radius:3px;overflow:hidden;transform:translate(-50%,-50%);}
+  .enemybar>i{display:block;height:100%;background:#ff3b30;}
+  .enemybar span{position:absolute;top:-15px;left:0;font-size:11px;color:#fff;text-shadow:0 1px 3px #000;white-space:nowrap;}
+  #pause{position:absolute;inset:0;background:rgba(5,5,12,.78);display:none;
+    align-items:center;justify-content:center;pointer-events:auto;z-index:5;}
+  #pause .box{width:420px;}
+  #pause h2{margin:0 0 8px;color:#ffb02e;}
+  #pause .stat{display:flex;justify-content:space-between;padding:3px 0;color:#e8ecf4;}
+  #pause button,#start button{pointer-events:auto;cursor:pointer;background:#ffb02e;color:#1a0e1e;
+    border:0;border-radius:6px;padding:10px 18px;font-weight:bold;font-size:15px;margin:8px 6px 0 0;}
+  #start{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(180deg,rgba(20,8,30,.25),rgba(20,8,30,.72));pointer-events:auto;z-index:6;}
+  #start .box{text-align:center;max-width:640px;padding:20px;}
+  #start h1{font-size:44px;margin:0;color:#ffb02e;text-shadow:0 3px 14px #000;letter-spacing:1px;}
+  #start h2{font-size:19px;margin:6px 0 12px;color:#fff;font-weight:normal;}
+  #start p{color:#e8ecf4;line-height:1.55;}
+  #start .keys{color:#8ef0ff;font-size:13px;}
+  .hidden{display:none !important;}
+</style>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.min.js"}}</script>
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <div id="mission-panel" class="card">
+      <h2 id="mp-title">JOB 1/8 • A FAVOR IN THE HEAT</h2>
+      <p class="obj" id="mp-objective">Meet the fixer Rae at the glowing marker.</p>
+      <div class="sub" id="mp-next">NEXT: LOOSE CARGO</div>
+      <div class="timer" id="mp-timer">0:47 / PAR 1:00</div>
+      <div class="sub" id="mp-marker">MARKER 45 m</div>
+    </div>
+    <div id="money-panel" class="card">
+      <div id="cash">$1,250</div>
+      <div class="row"><span id="hp">HP 100</span> &nbsp;•&nbsp; <span id="rep">REP 0</span></div>
+      <div id="repbar-wrap"><div id="repbar"></div></div>
+      <div class="row"><span id="stars">☆☆☆☆☆</span> &nbsp;<span id="police-line">POLICE: CLEAR</span></div>
+      <div class="row" id="car-label">HEATLINE GT — COND 100%</div>
+    </div>
+    <div id="police-panel" class="card hidden">
+      <h3>POLICE UNITS</h3>
+      <div id="police-rows"></div>
+    </div>
+    <div id="bl-panel" class="card">
+      <div class="radio" id="radio">SHORELINE 96.7 • Sunset Run</div>
+      <div class="weapons" id="weapons"><b>[1] PISTOL</b> &nbsp; 2 SMG &nbsp; 3 SHOTGUN &nbsp; 4 BAT</div>
+      <div class="crew" id="crew">
+        <div><b>Z</b> ● Rae — CLEAN SLATE — READY</div>
+        <div><b>X</b> ● Sable — EYES UP — READY</div>
+        <div><b>C</b> ● Marlo — PIT STOP — READY</div>
+      </div>
+    </div>
+    <div id="speedo" class="card">
+      <div><span id="speed">128</span> <span class="unit">km/h</span></div>
+      <div class="bar"><i id="fuelbar" style="width:92%"></i></div>
+      <div class="bar"><i id="condbar" style="width:100%"></i></div>
+      <div class="unit">FUEL <span id="fuel">92</span>% • COND <span id="cond">100</span>%</div>
+    </div>
+    <div id="mm-wrap">
+      <canvas id="minimap" width="180" height="180"></canvas>
+      <div id="mm-label">BEACHFRONT • Beachfront Rd</div>
+      <div id="mm-time">GOLDEN • 0 JOBS DONE</div>
+    </div>
+    <div id="dialogue" class="card hidden">
+      <div id="dlg-portrait">R</div>
+      <div><div class="who" id="dlg-name">Rae — Fixer</div><div class="say" id="dlg-text"></div></div>
+    </div>
+    <div id="popups"></div>
+    <div id="crosshair">+</div>
+    <div id="enemybars"></div>
+  </div>
+  <div id="pause"><div class="box card">
+    <h2>PAUSED — SUNCOAST: HEATLINE</h2>
+    <div class="stat"><span>Money</span><b id="ps-money">$1,250</b></div>
+    <div class="stat"><span>Stage</span><b id="ps-stage">1 / 8</b></div>
+    <div class="stat"><span>Jobs done</span><b id="ps-jobs">0</b></div>
+    <div class="stat"><span>Targets down</span><b id="ps-targets">0 / 3</b></div>
+    <div class="stat"><span>Drift earnings</span><b id="ps-drift">$0</b></div>
+    <div class="stat"><span>REP</span><b id="ps-rep">0</b></div>
+    <div class="stat"><span>Fuel</span><b id="ps-fuel">92%</b></div>
+    <div class="stat"><span>Wanted</span><b id="ps-wanted">0 stars</b></div>
+    <div class="stat"><span>Health</span><b id="ps-hp">100</b></div>
+    <button id="btn-resume">RESUME</button>
+    <button id="btn-save">SAVE</button>
+    <button id="btn-load">LOAD</button>
+  </div></div>
+  <div id="start"><div class="box">
+    <h1>SUNCOAST: HEATLINE</h1>
+    <h2>An open-world crime story on the Suncoast — drive, dodge the heat, finish all 8 jobs.</h2>
+    <p>Start with $1,250 and a red HEATLINE GT. Eight contracts stand between you and the $22,450 loop.
+    Steal cars, outrun SNOOK units, lose the helicopter, and settle the yard crew's debt.</p>
+    <p class="keys">W A S D drive &nbsp;•&nbsp; E enter / exit car &nbsp;•&nbsp; SPACE drift &nbsp;•&nbsp; Mouse aim, Click shoot (on foot)<br>
+    1–4 weapons &nbsp;•&nbsp; Z / X / C crew calls &nbsp;•&nbsp; R radio &nbsp;•&nbsp; M mute &nbsp;•&nbsp; H hide HUD &nbsp;•&nbsp; P pause</p>
+    <button id="btn-start">ENTER THE CITY</button>
+  </div></div>
+</div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
